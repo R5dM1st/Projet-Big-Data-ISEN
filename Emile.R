@@ -37,5 +37,5 @@ type_counts <- data %>%
   group_by(VesselType) %>%
   summarise(n_bateaux = n_distinct(MMSI)) %>%
   arrange(desc(n_bateaux))
-
+#caca
 print(type_counts)
