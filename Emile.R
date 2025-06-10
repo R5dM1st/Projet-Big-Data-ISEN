@@ -1,19 +1,25 @@
+#Fonctionnalité 1
+# Affiche le répertoire de travail courant
 getwd()
+
+# Charge le fichier CSV des données de navires
 data <- read.csv("vessel-total-clean.csv", header = TRUE, sep = ",", dec = ".", stringsAsFactors = TRUE)
+# Remplace les valeurs "\N" par NA dans tout le data frame
 data[data == "\\N"] <- NA
+# Affiche le nombre de trajet (lignes)
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
-# Conversion des colonnes numériques et catégorielles pour préparer les données à l'analyse.
+# Conversion des colonnes numériques et catégorielles pour préparer les données à l'analyse
 cols_to_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading", "LAT", "LON")
 data[cols_to_numeric] <- lapply(data[cols_to_numeric], as.numeric)
 data$VesselType <- as.factor(data$VesselType)
 data$Status <- as.factor(data$Status)
 data$TransceiverClass <- as.factor(data$TransceiverClass)
 
-# Valeurs manquantes
+# Affiche le nombre de valeurs manquantes par colonne
 print(colSums(is.na(data)))
 
-# Suppression des valeurs aberrantes
+# Filtrage des valeurs aberrantes et application des conditions sur les colonnes
 data <- data[
   (data$SOG <= 40 | is.na(data$SOG)) &
     (data$Heading >= 0 & data$Heading <= 359 | is.na(data$Heading)) &
@@ -27,14 +33,17 @@ data <- data[
          (data$VesselType == 80 & is.na(data$Cargo)) ),
 ]
 
+# Affiche le nombre de bateaux restants après filtrage
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
+# Suppression des doublons (hors colonne "id")
 data <- data[!duplicated(data[, setdiff(names(data), "id")]), ]
 cat("\nNombre de lignes restantes après suppression des doublons :", nrow(data), "\n")
 
-
-#remplacer les NAN par des moyennes ou des bateaux existent 
+# Affiche le nombre de valeurs manquantes après nettoyage
 print(colSums(is.na(data)))
+
+# Charge le package dplyr pour l'analyse
 library(dplyr)
 
 # Comptage du nombre de bateaux uniques (MMSI) par type de bateau
@@ -42,10 +51,9 @@ type_counts <- data %>%
   group_by(VesselType) %>%
   summarise(n_bateaux = n_distinct(MMSI)) %>%
   arrange(desc(n_bateaux))
-
 print(type_counts)
 
+# Affiche les MMSI dont la longueur (Length) est NA
 mmsi_na_length <- data$MMSI[is.na(data$Length)]
 print(mmsi_na_length)
 cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
-
