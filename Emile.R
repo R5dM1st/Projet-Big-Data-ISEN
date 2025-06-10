@@ -14,13 +14,15 @@ print(colSums(is.na(data)))
 # Suppression des valeurs aberrantes
 data <- data[
   (data$SOG <= 40 | is.na(data$SOG)) &
-    (data$Heading >= 0 & data$Heading <= 360 | is.na(data$Heading)) &
-    (data$Length > 0 & data$Length <= 400 | is.na(data$Length)) &
-    (data$Width > 0 & data$Width <= 80 | is.na(data$Width)) &
+    (data$Heading >= 0 & data$Heading <= 359 | is.na(data$Heading)) &
+    (data$Length >= 10 & data$Length <= 400 | is.na(data$Length)) &
+    (data$Width >= 3 & data$Width <= 80 | is.na(data$Width)) &
     (data$Draft > 0 | is.na(data$Draft)) &
     (is.na(data$IMO) | nchar(as.character(data$IMO)) <= 10) &
-    (data$LAT >= 20 & data$LAT <= 31 | is.na(data$LAT)) &
-    (data$LON >= -98 & data$LON <= -79 | is.na(data$LON)),
+    (data$LAT >= 20 & data$LAT <= 30 | is.na(data$LAT)) &
+    (data$LON >= -98 & data$LON <= -78 | is.na(data$LON)) &
+    !( (data$VesselType == 60 & (is.na(data$Cargo) | data$Cargo == 0 | data$Cargo == 99)) |
+         (data$VesselType == 80 & is.na(data$Cargo)) ),
 ]
 
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
@@ -40,3 +42,8 @@ type_counts <- data %>%
   arrange(desc(n_bateaux))
 #caca
 print(type_counts)
+
+mmsi_na_length <- data$MMSI[is.na(data$Length)]
+print(mmsi_na_length)
+cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
+
