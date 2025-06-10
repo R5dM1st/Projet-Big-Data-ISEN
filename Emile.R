@@ -18,13 +18,14 @@ data <- data[
     (data$Length > 0 & data$Length <= 400 | is.na(data$Length)) &
     (data$Width > 0 & data$Width <= 80 | is.na(data$Width)) &
     (data$Draft > 0 | is.na(data$Draft)) &
+    (is.na(data$IMO) | nchar(as.character(data$IMO)) <= 10) &
     (data$LAT >= 20 & data$LAT <= 31 | is.na(data$LAT)) &
     (data$LON >= -98 & data$LON <= -79 | is.na(data$LON)),
 ]
 
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
-data <- data[!duplicated(data), ]
+data <- data[!duplicated(data[, setdiff(names(data), "id")]), ]
 cat("\nNombre de lignes restantes après suppression des doublons :", nrow(data), "\n")
 
 
