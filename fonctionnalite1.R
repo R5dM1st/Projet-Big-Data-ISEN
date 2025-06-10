@@ -1,12 +1,15 @@
-#Fonctionnalité 1
+# Fonctionnalité 1 : Nettoyage, filtrage, statistiques et export CSV
+
 # Affiche le répertoire de travail courant
 getwd()
 
 # Charge le fichier CSV des données de navires
 data <- read.csv("vessel-total-clean.csv", header = TRUE, sep = ",", dec = ".", stringsAsFactors = TRUE)
+
 # Remplace les valeurs "\N" par NA dans tout le data frame
 data[data == "\\N"] <- NA
-# Affiche le nombre de trajet (lignes)
+
+# Affiche le nombre de bateaux (lignes) après chargement
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
 # Conversion des colonnes numériques et catégorielles pour préparer les données à l'analyse
@@ -57,3 +60,7 @@ print(type_counts)
 mmsi_na_length <- data$MMSI[is.na(data$Length)]
 print(mmsi_na_length)
 cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
+
+# Export des données nettoyées vers un nouveau fichier CSV
+write.csv(data, file = "vessel-clean-final.csv", row.names = FALSE)
+cat("Fichier CSV nettoyé exporté sous le nom : vessel-clean-final.csv\n")
