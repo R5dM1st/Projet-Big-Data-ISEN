@@ -19,9 +19,6 @@ data$VesselType <- as.factor(data$VesselType)
 data$Status <- as.factor(data$Status)
 data$TransceiverClass <- as.factor(data$TransceiverClass)
 
-# Affiche le nombre de valeurs manquantes par colonne
-print(colSums(is.na(data)))
-
 # Filtrage des valeurs aberrantes et application des conditions sur les colonnes
 data <- data[
   (data$SOG <= 40 | is.na(data$SOG)) &
@@ -35,6 +32,32 @@ data <- data[
     !( (data$VesselType == 60 & (is.na(data$Cargo) | data$Cargo == 0 | data$Cargo == 99)) |
          (data$VesselType == 80 & is.na(data$Cargo)) ),
 ]
+
+# Si une des colonnes Heading, COG ou SOG vaut 0, alors toutes sont mises à 0 sur la ligne
+zero_idx <- (data$Heading == 0 | data$COG == 0 | data$SOG == 0)
+data$Heading[zero_idx] <- 0
+data$COG[zero_idx] <- 0
+data$SOG[zero_idx] <- 0
+
+library(dplyr)
+
+cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading", "LAT", "LON") # adapte si besoin
+
+for (col in cols_numeric) {
+  data <- data %>%
+    group_by(VesselType) %>%
+    mutate(
+      !!sym(col) := ifelse(is.na(.data[[col]]), median(.data[[col]], na.rm = TRUE), .data[[col]])
+    ) %>%
+    ungroup()
+}
+
+# Vérification : nombre de NA par colonne numérique
+print(colSums(is.na(data[cols_numeric])))
+# Affiche le nombre de valeurs manquantes par colonne
+print(colSums(is.na(data)))
+
+
 
 # Affiche le nombre de bateaux restants après filtrage
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
@@ -64,3 +87,4 @@ cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
 # Export des données nettoyées vers un nouveau fichier CSV
 write.csv(data, file = "vessel-clean-final.csv", row.names = FALSE)
 cat("Fichier CSV nettoyé exporté sous le nom : vessel-clean-final.csv\n")
+
