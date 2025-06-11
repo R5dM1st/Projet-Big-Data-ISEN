@@ -14,7 +14,7 @@ cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
 # Conversion des colonnes numériques et catégorielles pour préparer les données à l'analyse
 cols_to_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading", "LAT", "LON")
-data[cols_to_numeric] <- lapply(data[cols_to_numeric], as.numeric)
+data[cols_to_numeric] <- lapply(data[cols_to_numeric], function(x) as.numeric(as.character(x)))
 data$VesselType <- as.factor(data$VesselType)
 data$Status <- as.factor(data$Status)
 data$TransceiverClass <- as.factor(data$TransceiverClass)
@@ -39,11 +39,25 @@ data$Heading[zero_idx] <- 0
 data$COG[zero_idx] <- 0
 data$SOG[zero_idx] <- 0
 
+library(dplyr)
+
+cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading") # adapte si besoin
+
+for (col in cols_numeric) {
+  data <- data %>%
+    group_by(VesselType) %>%
+    mutate(
+      !!sym(col) := ifelse(is.na(.data[[col]]), median(.data[[col]], na.rm = TRUE), .data[[col]])
+    ) %>%
+    ungroup()
+}
 
 # Vérification : nombre de NA par colonne numérique
 print(colSums(is.na(data[cols_numeric])))
 # Affiche le nombre de valeurs manquantes par colonne
 print(colSums(is.na(data)))
+
+
 
 # Affiche le nombre de bateaux restants après filtrage
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
