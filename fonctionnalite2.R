@@ -25,8 +25,8 @@ df <- read.csv("vessel-total-clean.csv", header = TRUE, sep = ",")
 # Arrondir les coordonnées
 df <- df %>%
   mutate(
-    LAT = round(LAT, 3),
-    LON = round(LON, 3)
+    LAT = round(LAT, 0),
+    LON = round(LON, 0)
   )
 
 # Filtrer SOG, COG ou Heading à zéro
@@ -40,7 +40,7 @@ coord_freq <- filtered %>%
   arrange(desc(Freq))
 
 # Afficher les 10 points les plus fréquents
-top_coords <- head(coord_freq, 10)
+top_coords <- head(coord_freq, 9)
 print(top_coords)
 
 library(leaflet)
@@ -49,9 +49,30 @@ leaflet(data = top_coords) %>%
   addTiles() %>%
   addCircleMarkers(
     ~LON, ~LAT,
-    radius = ~sqrt(Freq)/8,
+    radius = ~sqrt(Freq)/10,
     color = "red",
     fillOpacity = 0.2,
     label = ~paste0("Lat: ", LAT, ", Lon: ", LON, " (n=", Freq, ")")
   )
+
+library(ggplot2)
+
+ports_utilises <- c("New Orleans", "Houston", "Miami", "Lake Jackson",
+              "Road1", "Houma", "Road2", "Port Arthur",
+              "Corpus Christi")
+
+# Ajouter cette colonne au data frame
+top_coords$Coord <- ports_utilises
+
+# Affichage de l’histogramme
+ggplot(top_coords, aes(x = reorder(Coord, -Freq), y = Freq)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  labs(
+    title = "Top 9 des ports les plus utilisés",
+    x = "Ports",
+    y = "Nombre d'ocurrences"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("histogramme_ports_frequentes_p2.png", width = 10, height = 6)
 
