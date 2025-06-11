@@ -39,25 +39,11 @@ data$Heading[zero_idx] <- 0
 data$COG[zero_idx] <- 0
 data$SOG[zero_idx] <- 0
 
-library(dplyr)
-
-cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading") # adapte si besoin
-
-for (col in cols_numeric) {
-  data <- data %>%
-    group_by(VesselType) %>%
-    mutate(
-      !!sym(col) := ifelse(is.na(.data[[col]]), median(.data[[col]], na.rm = TRUE), .data[[col]])
-    ) %>%
-    ungroup()
-}
 
 # Vérification : nombre de NA par colonne numérique
 print(colSums(is.na(data[cols_numeric])))
 # Affiche le nombre de valeurs manquantes par colonne
 print(colSums(is.na(data)))
-
-
 
 # Affiche le nombre de bateaux restants après filtrage
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
