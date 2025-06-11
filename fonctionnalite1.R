@@ -41,7 +41,7 @@ data$SOG[zero_idx] <- 0
 
 library(dplyr)
 
-cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading", "LAT", "LON") # adapte si besoin
+cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading") # adapte si besoin
 
 for (col in cols_numeric) {
   data <- data %>%
