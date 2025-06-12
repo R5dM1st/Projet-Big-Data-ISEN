@@ -1,5 +1,3 @@
-# Fonctionnalité 1 : Nettoyage, filtrage, statistiques et export CSV
-
 # Affiche le répertoire de travail courant
 getwd()
 
@@ -12,25 +10,28 @@ data[data == "\\N"] <- NA
 # Affiche le nombre de bateaux (lignes) après chargement
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
-# Conversion des colonnes numériques et catégorielles pour préparer les données à l'analyse
+# Conversion des colonnes numériques et catégorielles
 cols_to_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading", "LAT", "LON")
-data[cols_to_numeric] <- lapply(data[cols_to_numeric], function(x) as.numeric(as.character(x)))
-data$VesselType <- as.factor(data$VesselType)
-data$Status <- as.factor(data$Status)
-data$TransceiverClass <- as.factor(data$TransceiverClass)
+existing_cols <- intersect(cols_to_numeric, names(data))
+data[existing_cols] <- lapply(data[existing_cols], function(x) as.numeric(as.character(x)))
 
-# Filtrage des valeurs aberrantes et application des conditions sur les colonnes
+# Conversion des colonnes catégorielles si elles existent
+if ("VesselType" %in% names(data)) data$VesselType <- as.factor(data$VesselType)
+if ("Status" %in% names(data)) data$Status <- as.factor(data$Status)
+if ("TransceiverClass" %in% names(data)) data$TransceiverClass <- as.factor(data$TransceiverClass)
+
+# Filtrage des valeurs aberrantes
 data <- data[
-  (data$SOG <= 40 | is.na(data$SOG)) &
-    (data$Heading >= 0 & data$Heading <= 359 | is.na(data$Heading)) &
-    (data$Length >= 10 & data$Length <= 400 | is.na(data$Length)) &
-    (data$Width >= 3 & data$Width <= 80 | is.na(data$Width)) &
-    (data$Draft > 0 | is.na(data$Draft)) &
+  (is.na(data$SOG) | data$SOG <= 40) &
+    (is.na(data$Heading) | (data$Heading >= 0 & data$Heading <= 359)) &
+    (is.na(data$Length) | (data$Length >= 10 & data$Length <= 400)) &
+    (is.na(data$Width) | (data$Width >= 3 & data$Width <= 80)) &
+    (is.na(data$Draft) | data$Draft > 0) &
     (is.na(data$IMO) | nchar(as.character(data$IMO)) <= 10) &
-    (data$LAT >= 20 & data$LAT <= 31 | is.na(data$LAT)) &
-    (data$LON >= -98 & data$LON <= -78 | is.na(data$LON)) &
-    !( (data$VesselType == 60 & (is.na(data$Cargo) | data$Cargo == 0 | data$Cargo == 99)) |
-         (data$VesselType == 80 & is.na(data$Cargo)) ),
+    (is.na(data$LAT) | (data$LAT >= 20 & data$LAT <= 31)) &
+    (is.na(data$LON) | (data$LON >= -98 & data$LON <= -78)) &
+    !( (!is.na(data$VesselType) & data$VesselType == 60 & (is.na(data$Cargo) | data$Cargo == 0 | data$Cargo == 99)) |
+         (!is.na(data$VesselType) & data$VesselType == 80 & is.na(data$Cargo)) ),
 ]
 
 # Si une des colonnes Heading, COG ou SOG vaut 0, alors toutes sont mises à 0 sur la ligne
@@ -39,9 +40,9 @@ data$Heading[zero_idx] <- 0
 data$COG[zero_idx] <- 0
 data$SOG[zero_idx] <- 0
 
+# Imputation des NA par la médiane par type de navire
 library(dplyr)
-
-cols_numeric <- c("Length", "Width", "Draft", "SOG", "COG", "Heading") # adapte si besoin
+cols_numeric <- intersect(c("Length", "Width", "Draft", "SOG", "COG", "Heading"), names(data))
 
 for (col in cols_numeric) {
   data <- data %>%
@@ -52,14 +53,11 @@ for (col in cols_numeric) {
     ungroup()
 }
 
-# Vérification : nombre de NA par colonne numérique
+# Vérification des valeurs manquantes
 print(colSums(is.na(data[cols_numeric])))
-# Affiche le nombre de valeurs manquantes par colonne
 print(colSums(is.na(data)))
 
-
-
-# Affiche le nombre de bateaux restants après filtrage
+# Nombre de bateaux après nettoyage
 cat("\nNombre de bateaux restants :", nrow(data), "\n")
 
 # Suppression des doublons (hors colonne "id")
@@ -69,22 +67,22 @@ cat("\nNombre de lignes restantes après suppression des doublons :", nrow(data)
 # Affiche le nombre de valeurs manquantes après nettoyage
 print(colSums(is.na(data)))
 
-# Charge le package dplyr pour l'analyse
-library(dplyr)
+# Analyse du nombre de bateaux par type
+if ("MMSI" %in% names(data) & "VesselType" %in% names(data)) {
+  type_counts <- data %>%
+    group_by(VesselType) %>%
+    summarise(n_bateaux = n_distinct(MMSI)) %>%
+    arrange(desc(n_bateaux))
+  print(type_counts)
+}
 
-# Comptage du nombre de bateaux uniques (MMSI) par type de bateau
-type_counts <- data %>%
-  group_by(VesselType) %>%
-  summarise(n_bateaux = n_distinct(MMSI)) %>%
-  arrange(desc(n_bateaux))
-print(type_counts)
+# MMSI dont la longueur est NA (peu probable après imputation, mais au cas où)
+if ("Length" %in% names(data) & "MMSI" %in% names(data)) {
+  mmsi_na_length <- data$MMSI[is.na(data$Length)]
+  print(mmsi_na_length)
+  cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
+}
 
-# Affiche les MMSI dont la longueur (Length) est NA
-mmsi_na_length <- data$MMSI[is.na(data$Length)]
-print(mmsi_na_length)
-cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")
-
-# Export des données nettoyées vers un nouveau fichier CSV
+# Export vers CSV
 write.csv(data, file = "vessel-clean-final.csv", row.names = FALSE)
 cat("Fichier CSV nettoyé exporté sous le nom : vessel-clean-final.csv\n")
-

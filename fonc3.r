@@ -9,8 +9,8 @@ data_map <- data %>%
 
 # Définir les limites du Golfe du Mexique
 lon_min <- -98
-lon_max <- -78
-lat_min <- 20
+lon_max <- -80
+lat_min <- 18
 lat_max <- 31
 
 # ----------- A. Calcul des 10 points d'arrêt les plus fréquents -----------
@@ -41,9 +41,9 @@ png("trajectoires_golfe_mexique.png", width = 1200, height = 900, res = 120)
 ggplot() +
   borders("world", colour = "grey60", fill = "white") +
   geom_path(data = data_map, aes(x = LON, y = LAT, group = MMSI),
-            color = "red", alpha = 0.15, size = 0.3) +
+            color = "blue", alpha = 0.15, size = 0.3) +
   geom_point(data = top_coords, aes(x = LON, y = LAT, size = Freq),
-             color = "blue", alpha = 0.3) +
+             color = "red", alpha = 0.3) +
   scale_size(range = c(4, 16), name = "Nombre d'occurances") +
   coord_fixed(1.4, xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
   labs(title = "Trajectoires des bateaux – Golfe du Mexique",
