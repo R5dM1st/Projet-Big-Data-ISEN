@@ -6,6 +6,27 @@ barplot(table(data$VesselType),
         ylab = "Nombre de bateaux",
         col = "skyblue")
 dev.off()
+library(ggplot2)
+library(dplyr)
+
+# Calcul du nombre de bateaux uniques par type
+type_counts <- data %>%
+  group_by(VesselType) %>%
+  summarise(n_bateaux = n_distinct(MMSI)) %>%
+  arrange(desc(n_bateaux))
+
+# Ajouter une part en pourcentage pour la lisibilité
+type_counts <- type_counts %>%
+  mutate(pourcentage = round(n_bateaux / sum(n_bateaux) * 100, 1),
+         etiquette = paste0(VesselType, " (", pourcentage, "%)"))
+
+# Tracer le camembert
+ggplot(type_counts, aes(x = "", y = n_bateaux, fill = etiquette)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  labs(title = "Répartition des bateaux par type") +
+  theme_void() +
+  theme(legend.title = element_blank())
 
 library(dplyr)
 
