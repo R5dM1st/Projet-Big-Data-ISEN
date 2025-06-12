@@ -86,3 +86,13 @@ if ("Length" %in% names(data) & "MMSI" %in% names(data)) {
 # Export vers CSV
 write.csv(data, file = "vessel-clean-final.csv", row.names = FALSE)
 cat("Fichier CSV nettoyé exporté sous le nom : vessel-clean-final.csv\n")
+
+
+# Liste des colonnes numériques à résumer
+cols_to_summarize <- c("LAT", "LON", "Length", "Width", "Draft", "SOG", "COG", "Heading")
+
+# Applique summary() à chaque colonne numérique
+for (col in cols_to_summarize) {
+  cat("\nRésumé statistique de la colonne :", col, "\n")
+  print(summary(data[[col]]))
+}
