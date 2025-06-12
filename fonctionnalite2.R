@@ -54,8 +54,8 @@ coord_freq <- filtered %>%
 top_coords <- head(coord_freq, 10)
 print(top_coords)
 
+#Affichage de la carte avec les Ports les + utilisés
 library(leaflet)
-
 leaflet(data = top_coords) %>%
   addTiles() %>%
   addCircleMarkers(
@@ -65,9 +65,11 @@ leaflet(data = top_coords) %>%
     fillOpacity = 0.2,
     label = ~paste0("Lat: ", LAT, ", Lon: ", LON, " (n=", Freq, ")")
   )
+#On crée des cercles de taille proportionnelle avec leur importance
+#sur les coordonnées arrondies LAT,LON
 
-library(ggplot2)
 
+# Nommination des ports
 ports_utilises <- c("New Orleans", "Houston", "Miami", "Lake Jackson",
               "Road1", "Lake Charles", "Road2", "Corpus Christi",
               "Tampa","Donaldsonvile")
@@ -85,4 +87,7 @@ ggplot(top_coords, aes(x = reorder(Coord, -Freq), y = Freq)) +
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Téléchargement en png
 ggsave("histogramme_ports_frequentes_p2.png", width = 10, height = 6)
+
