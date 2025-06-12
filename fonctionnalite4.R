@@ -15,10 +15,11 @@ mcor_data <- cor(
   method = "pearson"
 )
 
-# 5. Affichage avec corrplot ------------------------------------------------
+# 5. Affichage avec corrplot EN PNG -----------------------------------------
 # install.packages("corrplot")  # si besoin
 library(corrplot)
 
+png("matrice_correlation_quantitatives.png", width = 900, height = 800)
 par(mar = c(1, 1, 1, 1))
 corrplot(
   mcor_data,
@@ -30,6 +31,8 @@ corrplot(
   tl.col = "black",
   tl.srt = 45
 )
+dev.off()
+
 # 6. Sélection des variables qualitatives -----------------------------------
 vars_qual <- c("Status", "Cargo")
 
@@ -37,15 +40,15 @@ vars_qual <- c("Status", "Cargo")
 for (var2 in vars_qual) {
   cat("\n====> Tableau croisé : VesselType vs", var2, "<====\n")
   
-  # Tableau croisé
+  # tableau croisé
   tab <- table(data$VesselType, data[[var2]])
   print(tab)
   
-  # Test du chi2
+  # test du chi2
   test <- chisq.test(tab)
   print(test)
   
-  # Mosaicplot ENREGISTRÉ EN PNG
+  # enregistre les données en png
   png(paste0("mosaicplot_VesselType_vs_", var2, ".png"), width=900, height=700)
   mosaicplot(tab, main = paste("VesselType vs", var2),
              xlab = "VesselType", ylab = var2, color = TRUE, shade = TRUE)
