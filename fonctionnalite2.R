@@ -65,4 +65,3 @@ ggplot(top_coords, aes(x = reorder(Coord, -Freq), y = Freq)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("histogramme_ports_frequentes_p2.png", width = 10, height = 6)
-
