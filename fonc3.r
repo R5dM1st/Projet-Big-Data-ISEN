@@ -9,8 +9,8 @@ data_map <- data %>%
 
 # Définir les limites du Golfe du Mexique
 lon_min <- -98
-lon_max <- -80
-lat_min <- 18
+lon_max <- -78
+lat_min <- 20
 lat_max <- 31
 
 # ----------- A. Calcul des 10 points d'arrêt les plus fréquents -----------

@@ -1,13 +1,3 @@
-# Histogramme du nombre de bateaux par catégorie (VesselType)
-png("histogramme_categories_bateaux.png", width = 800, height = 600)
-hist(as.numeric(data$VesselType),
-     main = "Histogramme des catégories de bateaux",
-     xlab = "Catégorie (VesselType)",
-     ylab = "Nombre",
-     col = "lightgreen",
-     breaks = length(unique(data$VesselType)))
-dev.off()
-
 # Diagramme en barres : répartition des bateaux par type
 png("repartition_bateaux_par_type.png", width = 800, height = 600)
 barplot(table(data$VesselType),
@@ -75,4 +65,3 @@ ggplot(top_coords, aes(x = reorder(Coord, -Freq), y = Freq)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave("histogramme_ports_frequentes_p2.png", width = 10, height = 6)
-
