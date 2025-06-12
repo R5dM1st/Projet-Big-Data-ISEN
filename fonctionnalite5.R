@@ -1,52 +1,65 @@
 library(dplyr)
+library(nnet)
 library(ggplot2)
-library(ROCR)  # Pour la courbe ROC
 
-# Chargement des données
-data <- read.csv("vessel-clean-final.csv", stringsAsFactors =TRUE)
+data <- read.csv("vessel-clean-final.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
 
-# On ne garde que deux types de bateaux
-data_bin <- data %>% filter(VesselType %in% c(60,70,80))
-data_bin$VesselType <- factor(data_bin$VesselType)
+#on enlève les colonnes qui ne servent pas pour la modélisation
+data_model <- subset(data, select = -c(id, MMSI, Status, BaseDateTime))
 
-# Variables explicatives
-vars <- c("Length", "Width", "Draft", "SOG", "COG", "Heading")
-data_bin <- data_bin %>% select(VesselType, all_of(vars)) %>% na.omit()
+#regroupeent des soustypes en grandes classes (60, 70, 80)
+data_model$VesselType <- with(data_model, ifelse(VesselType >= 60 & VesselType <= 69, 60,
+                                                 ifelse(VesselType >= 70 & VesselType <= 79, 70,
+                                                        ifelse(VesselType >= 80 & VesselType <= 89, 80,
+                                                               as.numeric(as.character(VesselType))))))
 
-# Split train/test
-set.seed(123)
-train_idx <- sample(1:nrow(data_bin), 0.7 * nrow(data_bin))
-train_data <- data_bin[train_idx, ]
-test_data <- data_bin[-train_idx, ]
+#on garde uniquement les trois grandes classes
+data_model <- data_model[data_model$VesselType %in% c(60, 70, 80), ]
 
-# Régression logistique
-model <- glm(VesselType ~ ., data = train_data, family = "binomial")
+cat("Nombre de navires par type :\n")
+print(table(data_model$VesselType))
+
+#suppression des lignes avec NA
+data_model <- na.omit(data_model)
+
+#création d'un échantillon train/test
+set.seed(123)  # Pour la reproductibilité
+train_frac <- 0.8
+
+#melange des données
+data_model <- data_model[sample(nrow(data_model)), ]
+
+#indices pour split
+train_index <- floor(nrow(data_model) * train_frac)
+
+train_data <- data_model[1:train_index, ]
+test_data <- data_model[(train_index + 1):nrow(data_model), ]
+
+#entrainement du modèle sur train
+model <- multinom(VesselType ~ Length + Width + Draft + Cargo, data = train_data)
+
+#résumé des coefficients
 summary(model)
 
-# Prédictions
-probs <- predict(model, newdata = test_data, type = "response")
-pred_class <- ifelse(probs > 0.5, 80, 70)
-pred_class <- factor(pred_class, levels = levels(data_bin$VesselType))
-true_class <- test_data$VesselType
+#prédiction sur test
+predictions <- predict(model, newdata = test_data)
 
-# Matrice de confusion
-conf_mat <- table(True = true_class, Predicted = pred_class)
-print(conf_mat)
+#matrice de confusion sur test
+confusion <- table(Prédit = predictions, Réel = test_data$VesselType)
+cat("\nMatrice de confusion sur test :\n")
+print(confusion)
 
-# ---- Affichage graphique : matrice de confusion ----
-conf_df <- as.data.frame(conf_mat)
-ggplot(conf_df, aes(x = True, y = Predicted, fill = Freq)) +
-  geom_tile() +
-  geom_text(aes(label = Freq), color = "white", size = 8) +
-  scale_fill_gradient(low = "skyblue", high = "darkred") +
-  labs(title = "Matrice de confusion – Régression logistique",
-       x = "Classe réelle", y = "Classe prédite") +
-  theme_minimal(base_size = 16)
+#visualisation matrice de confusion
+confusion_df <- as.data.frame(confusion)
+colnames(confusion_df) <- c("Prévu", "Réel", "Nombre")
 
-# ---- Affichage graphique : courbe ROC ----
-pred_roc <- prediction(probs, true_class)
-perf_roc <- performance(pred_roc, "tpr", "fpr")
-plot(perf_roc, col = "blue", lwd = 3, main = "Courbe ROC", xlab = "FPR", ylab = "TPR")
-abline(a = 0, b = 1, lty = 2, col = "gray")
-auc <- performance(pred_roc, "auc")@y.values[[1]]
-legend("bottomright", legend = paste("AUC =", round(auc, 3)), col = "blue", lwd = 2)
+ggplot(confusion_df, aes(x = Réel, y = Prévu, fill = Nombre)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Nombre), color = "black", size = 6) +
+  scale_fill_gradient(low = "lightblue", high = "steelblue") +
+  labs(title = "Matrice de confusion (test)", x = "Véritable type", y = "Type prédit") +
+  theme_minimal()
+
+#calcul de la précision sur test
+accuracy <- mean(predictions == test_data$VesselType)
+cat("\nPrécision sur le test :", round(accuracy * 100, 2), "%\n")
