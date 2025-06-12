@@ -1,8 +1,6 @@
 library(ggplot2)
 library(dplyr)
 library(maps)
-# install.packages("hexbin")  # À faire une seule fois si besoin
-# library(hexbin)  # Pas utilisé ici
 
 # Charger et nettoyer les données
 data <- read.csv("vessel-clean-final.csv", stringsAsFactors = FALSE)
@@ -24,7 +22,7 @@ data_ports <- data_map %>%
     LON = round(LON, 0)
   )
 
-# Filtrer les arrêts (SOG, COG ou Heading à zéro)
+# Filtrer les occurances (SOG, COG ou Heading à zéro)
 filtered_ports <- data_ports %>%
   filter(SOG == 0 | COG == 0 | Heading == 0)
 
@@ -43,10 +41,10 @@ png("trajectoires_golfe_mexique.png", width = 1200, height = 900, res = 120)
 ggplot() +
   borders("world", colour = "grey60", fill = "white") +
   geom_path(data = data_map, aes(x = LON, y = LAT, group = MMSI),
-            color = "blue", alpha = 0.15, size = 0.3) +
+            color = "red", alpha = 0.15, size = 0.3) +
   geom_point(data = top_coords, aes(x = LON, y = LAT, size = Freq),
-             color = "red", alpha = 0.3) +
-  scale_size(range = c(4, 16), name = "Nombre d'arrêts") +
+             color = "blue", alpha = 0.3) +
+  scale_size(range = c(4, 16), name = "Nombre d'occurances") +
   coord_fixed(1.4, xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
   labs(title = "Trajectoires des bateaux – Golfe du Mexique",
        x = "Longitude", y = "Latitude") +
@@ -69,11 +67,11 @@ data_bateau <- data_map %>%
 png(paste0("trajectoire_bateau_", mmsi_input, ".png"), width = 1200, height = 900, res = 120)
 ggplot() +
   borders("world", colour = "grey60", fill = "white") +
-  geom_path(data = data_bateau, aes(x = LON, y = LAT), color = "red", size = 1, alpha = 0.5) +
-  geom_point(data = data_bateau, aes(x = LON, y = LAT), color = "darkred", size = 1.5, alpha = 0.8) +
+  geom_path(data = data_bateau, aes(x = LON, y = LAT), color = "blue", size = 1, alpha = 0.5) +
+  geom_point(data = data_bateau, aes(x = LON, y = LAT), color = "darkblue", size = 1.5, alpha = 0.8) +
   geom_point(data = top_coords, aes(x = LON, y = LAT, size = Freq),
-             color = "blue", alpha = 0.3) +
-  scale_size(range = c(4, 16), name = "Nombre d'arrêts") +
+             color = "red", alpha = 0.3) +
+  scale_size(range = c(4, 16), name = "Nombre d'occurances") +
   coord_fixed(1.4, xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
   labs(title = paste("Trajectoire du bateau MMSI", mmsi_input, "– Golfe du Mexique"),
        x = "Longitude", y = "Latitude") +
