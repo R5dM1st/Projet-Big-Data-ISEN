@@ -19,7 +19,7 @@ data$VesselType <- as.factor(data$VesselType)
 data$Status <- as.factor(data$Status)
 data$TransceiverClass <- as.factor(data$TransceiverClass)
 
-# Filtrage des valeurs aberrantes
+#filtrage des valeurs aberrantes
 data <- data[
   (data$SOG <= 40 | is.na(data$SOG)) &
     (data$Heading >= 0 & data$Heading <= 359 | is.na(data$Heading)) &

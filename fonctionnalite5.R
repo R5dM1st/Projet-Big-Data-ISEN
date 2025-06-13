@@ -9,9 +9,7 @@ data_model <- subset(data, select = -c(id, MMSI, Status, BaseDateTime))
 
 #regroupeent des soustypes en grandes classes (60, 70, 80)
 data_model$VesselType <- with(data_model, ifelse(VesselType >= 60 & VesselType <= 69, 60,
-                                                 ifelse(VesselType >= 70 & VesselType <= 79, 70,
-                                                        ifelse(VesselType >= 80 & VesselType <= 89, 80,
-                                                               as.numeric(as.character(VesselType))))))
+ifelse(VesselType >= 70 & VesselType <= 79, 70,ifelse(VesselType >= 80 & VesselType <= 89, 80,as.numeric(as.character(VesselType))))))
 
 #on garde uniquement les trois grandes classes
 data_model <- data_model[data_model$VesselType %in% c(60, 70, 80), ]
@@ -36,7 +34,7 @@ train_data <- data_model[1:train_index, ]
 test_data <- data_model[(train_index + 1):nrow(data_model), ]
 
 #entrainement du modèle sur train
-model <- multinom(VesselType ~ Length + Width + Draft + Cargo, data = train_data)
+model <- multinom(VesselType ~ Length + Width + Draft, data = train_data)
 
 #résumé des coefficients
 summary(model)

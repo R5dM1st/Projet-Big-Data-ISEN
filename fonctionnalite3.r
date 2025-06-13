@@ -4,10 +4,10 @@ library(maps)
 
 data <- read.csv("vessel-clean-final.csv", stringsAsFactors = FALSE)
 
-# Nettoyage des coordonnées valides
+#nettoyage des coordonnées valides
 data_map <- subset(data, !is.na(LAT) & !is.na(LON) & LAT > -90 & LAT < 90 & LON > -180 & LON < 180)
 
-# Limites du Golfe du Mexique
+#limites du Golfe du Mexique
 lon_min <- -98
 lon_max <- -80
 lat_min <- 18
