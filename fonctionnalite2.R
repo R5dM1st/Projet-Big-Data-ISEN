@@ -1,17 +1,24 @@
 
 # Partie 2 – Visualisation des types de navires et ports les plus fréquentés
 
-
-# Diagramme en barres : répartition des bateaux par type
-png("repartition_bateaux_par_type.png", width = 800, height = 600)
-barplot(table(data$VesselType),
-        main = "Répartition des bateaux par type",
-        xlab = "Type de bateau",
-        ylab = "Nombre de bateaux",
-        col = "skyblue")
-dev.off()
 library(ggplot2)
 library(dplyr)
+
+# Nettoyer les données : enlever les longueurs manquantes
+donnees_plot <- data %>%
+  filter(!is.na(Length))
+
+# Créer le boxplot
+ggplot(donnees_plot, aes(x = as.factor(VesselType), y = Length, fill = as.factor(VesselType))) +
+  geom_boxplot() +
+  labs(
+    title = "Distribution des longueurs de bateaux par type",
+    x = "Type de navire (VesselType)",
+    y = "Longueur (mètres)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
 
 # Calcul du nombre de bateaux uniques par type
 type_counts <- data %>%
@@ -31,8 +38,6 @@ ggplot(type_counts, aes(x = "", y = n_bateaux, fill = etiquette)) +
   labs(title = "Répartition des bateaux par type") +
   theme_void() +
   theme(legend.title = element_blank())
-
-library(dplyr)
 
 # Charger les données (ex : base R)
 df <- read.csv("vessel-clean-final.csv", header = TRUE, sep = ",")
