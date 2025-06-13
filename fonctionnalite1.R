@@ -1,3 +1,6 @@
+
+#Partie 1 - Nettoyage et préparation des données des navires
+
 #affiche le répertoire de travail courant
 getwd()
 
@@ -63,7 +66,7 @@ cat("\nNombre de bateaux restants :", nrow(data), "\n")
 data <- data[!duplicated(data[, setdiff(names(data), "id")]), ]
 cat("\nNombre de lignes restantes après suppression des doublons :", nrow(data), "\n")
 
-# Comptage du nombre de bateaux uniques (MMSI) par type de bateau (sans %>%)
+# Comptage du nombre de bateaux uniques (MMSI) par type de bateau
 vtypes <- unique(data$VesselType)
 type_counts <- data.frame(VesselType = character(), n_bateaux = numeric(), stringsAsFactors = FALSE)
 for (vt in vtypes) {
@@ -73,7 +76,7 @@ for (vt in vtypes) {
 type_counts <- type_counts[order(-type_counts$n_bateaux), ]
 print(type_counts)
 
-# MMSI où la longueur est NA
+#MMSI où la longueur est NA
 mmsi_na_length <- data$MMSI[is.na(data$Length)]
 print(mmsi_na_length)
 cat("Nombre de MMSI où Length est NA :", length(mmsi_na_length), "\n")

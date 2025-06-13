@@ -1,10 +1,13 @@
+
+# Partie 5 – Modélisation du type de navire par régression logistique multinomiale
+
 library(dplyr)
 library(nnet)
 library(ggplot2)
 
 data <- read.csv("vessel-clean-final.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
 
-#on enlève les colonnes qui ne servent pas pour la modélisation
+#on enleve les colonnes qui ne servent pas pour la modélisation
 data_model <- subset(data, select = -c(id, MMSI, Status, BaseDateTime))
 
 #regroupeent des soustypes en grandes classes (60, 70, 80)
@@ -36,6 +39,8 @@ test_data <- data_model[(train_index + 1):nrow(data_model), ]
 #entrainement du modèle sur train
 model <- multinom(VesselType ~ Length + Width + Draft, data = train_data)
 
+#Partie 4 – Modélisation du type de navire par régression logistique multinomiale
+
 #résumé des coefficients
 summary(model)
 
@@ -51,12 +56,16 @@ print(confusion)
 confusion_df <- as.data.frame(confusion)
 colnames(confusion_df) <- c("Prévu", "Réel", "Nombre")
 
+png("figures/matrice_confusion_multinomiale.png", width = 900, height = 700)
+
 ggplot(confusion_df, aes(x = Réel, y = Prévu, fill = Nombre)) +
   geom_tile(color = "white") +
   geom_text(aes(label = Nombre), color = "black", size = 6) +
   scale_fill_gradient(low = "lightblue", high = "steelblue") +
   labs(title = "Matrice de confusion (test)", x = "Véritable type", y = "Type prédit") +
   theme_minimal()
+
+dev.off()
 
 #calcul de la précision sur test
 accuracy <- mean(predictions == test_data$VesselType)

@@ -1,3 +1,6 @@
+
+#Partie 3 -  Visualisation des trajectoires maritimes dans le Golfe du Mexique
+
 library(ggplot2)
 library(dplyr)
 library(maps)
@@ -36,7 +39,7 @@ top_coords <- head(coord_freq, 10)
 
 # ----------- 1. Affichage de toutes les trajectoires -----------
 
-png("trajectoires_golfe_mexique.png", width = 1200, height = 900, res = 120)
+png("figures/trajectoires_golfe_mexique.png", width = 1200, height = 900, res = 120)
 
 ggplot() +
   borders("world", colour = "grey60", fill = "white") +
@@ -73,9 +76,9 @@ mmsi_input <- as.numeric(mmsi_input)
 data_bateau <- subset(data_map, MMSI == mmsi_input)
 data_bateau <- data_bateau[order(data_bateau$BaseDateTime), ]
 
-# Affichage de la trajectoire individuelle
-png(paste0("trajectoire_bateau_", mmsi_input, ".png"), width = 1200, height = 900, res = 120)
 
+png(filename = paste0("figures/trajectoire_bateau_", mmsi_input, ".png"),
+    width = 1200, height = 900, res = 120)
 ggplot() +
   borders("world", colour = "grey60", fill = "white") +
   geom_path(
@@ -100,5 +103,4 @@ ggplot() +
     x = "Longitude", y = "Latitude"
   ) +
   theme_minimal(base_size = 14)
-
 dev.off()

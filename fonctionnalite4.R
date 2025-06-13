@@ -1,23 +1,25 @@
+
+#Partie 4 – Analyse des relations entre les variables (corrélations et associations)
+
 data <- read.csv("vessel-clean-final.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
-# 2. Exclure les variables non pertinentes ----------------------------------
+#1. Exclure les variables non pertinentes ----------------------------------
 data_clean <- subset(data, select = -c(id, Status, MMSI, Cargo))
 
-# 3. seelection des variables numériques (y compris VesselType) -------------
+#2 . seelection des variables numériques (y compris VesselType) -------------
 data_quant <- data_clean[ , sapply(data_clean, is.numeric) ]
 summary(data_quant)
 
-# 4. Matrice de corrélation -------------------------------------------------
+#4. Matrice de corrélation -------------------------------------------------
 mcor_data <- cor(
   data_quant,
   use = "pairwise.complete.obs",
   method = "pearson"
 )
 
-# 5. Affichage avec corrplot ------------------------------------------------
-# install.packages("corrplot")  # si besoin
+#5. affichage avec corrplot ------------------------------------------------
 library(corrplot)
 
-png("matrice_correlation_quantitatives.png", width = 900, height = 800)
+png("figures/matrice_correlation_quantitatives.png", width = 900, height = 800)
 par(mar = c(1, 1, 1, 1))
 corrplot(
   mcor_data,

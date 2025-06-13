@@ -1,3 +1,7 @@
+
+# Partie 2 – Visualisation des types de navires et ports les plus fréquentés
+
+
 # Diagramme en barres : répartition des bateaux par type
 png("repartition_bateaux_par_type.png", width = 800, height = 600)
 barplot(table(data$VesselType),
