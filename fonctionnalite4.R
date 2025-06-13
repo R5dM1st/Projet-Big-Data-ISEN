@@ -49,7 +49,7 @@ for (var2 in vars_qual) {
   print(test)
   
   # enregistrement du graphique en PNG
-  png(paste0("mosaicplot_VesselType_vs_", var2, ".png"), width = 900, height = 700)
+  png(paste0("figures/mosaicplot_VesselType_vs_", var2, ".png"), width = 900, height = 700)
   mosaicplot(tab, main = paste("VesselType vs", var2),
              xlab = "VesselType", ylab = var2, color = TRUE, shade = TRUE)
   dev.off()

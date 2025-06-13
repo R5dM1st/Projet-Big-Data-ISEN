@@ -1,17 +1,18 @@
 
 # Partie 2 – Visualisation des types de navires et ports les plus fréquentés
 
+library(ggplot2)
+library(dplyr)
 
 # Diagramme en barres : répartition des bateaux par type
-png("repartition_bateaux_par_type.png", width = 800, height = 600)
+png("figures/repartition_bateaux_par_type.png", width = 800, height = 600)
 barplot(table(data$VesselType),
         main = "Répartition des bateaux par type",
         xlab = "Type de bateau",
         ylab = "Nombre de bateaux",
         col = "skyblue")
 dev.off()
-library(ggplot2)
-library(dplyr)
+
 
 # Calcul du nombre de bateaux uniques par type
 type_counts <- data %>%
@@ -93,5 +94,5 @@ ggplot(top_coords, aes(x = reorder(Coord, -Freq), y = Freq)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #Téléchargement en png
-ggsave("histogramme_ports_frequentes_p2.png", width = 10, height = 6)
+ggsave("figures/histogramme_ports_frequentes_p2.png", width = 10, height = 6)
 
