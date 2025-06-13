@@ -52,7 +52,7 @@ Ce projet vise à :
 
 2. **Exploration et visualisations**  
    - `fonctionalite2.R` : Visualisation des types de navires et des ports les plus fréquentés.
-   - `fonctionalite3.R` : Visualisation des trajectoires maritimes dans le Golfe du Mexique.
+   - `fonctionalite3.R` : Visualisation des trajectoires maritimes dans le Golfe du Mexique. ⚠️(ne pas oublier de placer le MMSI du bateau dans l'input dans l'invite de commande pour la partie de visualisation du trajet d'un bateau).
    - `fonctionalite4.R` : Analyse statistique, matrices de corrélation, mosaicplots.
 
 3. **Modélisation prédictive**  
